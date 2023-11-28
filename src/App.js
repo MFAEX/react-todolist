@@ -1,0 +1,75 @@
+import './App.css';
+import React, { useState, useEffect } from 'react'
+import Form from './components/Form'
+import TodoList from './components/TodoList';
+
+function App() {
+  const [inputText, setInputText] = useState("");
+  const [todos, setTodos] = useState([]);
+  const [status, setStatus] = useState("all");
+  const [filteredTodos, setFilteredTodos] = useState([]);
+
+  useEffect(() => {
+    getLocalTodos();
+  }, [])
+
+  useEffect(() => {
+    filterHandler();
+    saveLocalTodos();
+  }, [todos, status]);
+
+  const filterHandler = () => {
+    switch (status) {
+      case "completed":
+        setFilteredTodos(todos.filter((todo) => todo.completed === true));
+        break;
+      case "uncompleted":
+        setFilteredTodos(todos.filter((todo) => todo.completed === false));
+        break;
+      default:
+        setFilteredTodos(todos);
+        break;
+    }
+  }
+
+  const saveLocalTodos = () => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }
+
+  const getLocalTodos = () => {
+    if (localStorage.getItem("todos") === null) {
+      const defaultTodos = [
+        { id: 1, text: "Ödev yap", completed: true },
+        { id: 2, text: "Learning React", completed: false },
+        { id: 3, text: "Kitap oku", completed: false },
+      ];
+
+      localStorage.setItem("todos", JSON.stringify(defaultTodos));
+      setTodos(defaultTodos);
+    } else {
+      setTodos(JSON.parse(localStorage.getItem("todos")));
+    }
+  }
+
+  return (
+    <div className="App">
+      <header>
+        <h1>MY TODO LIST</h1>
+      </header>
+      <Form
+        inputText={inputText}
+        setInputText={setInputText}
+        todos={todos}
+        setTodos={setTodos}
+        setStatus={setStatus}
+      />
+      <TodoList
+        todos={todos}
+        setTodos={setTodos}
+        filteredTodos={filteredTodos}
+      />
+    </div>
+  );
+}
+
+export default App;
